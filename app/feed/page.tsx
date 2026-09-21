@@ -14,13 +14,16 @@ export default function FeedPage() {
   const posts = db.posts
     .filter((p) => following.has(p.authorId))
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-    .map((p) => ({
-      ...p,
-      author: (() => {
-        const u = db.users.find((x) => x.id === p.authorId);
-        return u ? publicUser(u) : null;
-      })(),
-    }));
+    .map((p) => {
+      const u = db.users.find((x) => x.id === p.authorId);
+      const likes = db.likes.filter((l) => l.postId === p.id);
+      return {
+        ...p,
+        author: u ? publicUser(u) : null,
+        likeCount: likes.length,
+        likedByMe: likes.some((l) => l.userId === me.id),
+      };
+    });
 
   return (
     <>
@@ -33,7 +36,12 @@ export default function FeedPage() {
           </p>
         )}
         {posts.map((p) => (
-          <PostCard key={p.id} post={p} />
+          <PostCard
+            key={p.id}
+            post={p}
+            initialLiked={p.likedByMe}
+            initialLikeCount={p.likeCount}
+          />
         ))}
       </main>
     </>

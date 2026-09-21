@@ -14,6 +14,11 @@ export type Follow = {
   followingId: string;
 };
 
+export type Like = {
+  postId: string;
+  userId: string;
+};
+
 export type PostType = "text" | "image" | "video";
 
 export type Post = {
@@ -29,6 +34,7 @@ export type DB = {
   users: User[];
   follows: Follow[];
   posts: Post[];
+  likes: Like[];
 };
 
 export type PublicUser = Omit<User, "passwordHash" | "email"> & { email?: string };

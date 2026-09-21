@@ -1,10 +1,44 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 
-export default function PostCard({ post }: { post: any }) {
+export default function PostCard({
+  post,
+  initialLiked = false,
+  initialLikeCount = 0,
+}: {
+  post: any;
+  initialLiked?: boolean;
+  initialLikeCount?: number;
+}) {
+  const [liked, setLiked] = useState(initialLiked);
+  const [count, setCount] = useState(initialLikeCount);
+  const [busy, setBusy] = useState(false);
+
+  async function toggleLike() {
+    if (busy) return;
+    setBusy(true);
+    try {
+      const res = await fetch("/api/like", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postId: post.id }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setLiked(data.liked);
+        setCount(data.count);
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <article className="rounded-2xl border border-line bg-surface p-4">
       <div className="mb-3 flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-line text-sm">
+        <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-line text-sm font-medium">
           {post.author?.avatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={post.author.avatarUrl} alt="" className="h-full w-full object-cover" />
@@ -27,6 +61,15 @@ export default function PostCard({ post }: { post: any }) {
       {post.mediaUrl && post.type === "video" && (
         <video src={post.mediaUrl} controls className="mt-3 w-full rounded-xl" />
       )}
+      <div className="mt-3 flex items-center gap-4 border-t border-line pt-3">
+        <button
+          onClick={toggleLike}
+          disabled={busy}
+          className={`text-sm ${liked ? "text-accent" : "text-mute hover:text-white"}`}
+        >
+          {liked ? "♥" : "♡"} {count}
+        </button>
+      </div>
     </article>
   );
 }

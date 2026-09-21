@@ -4,18 +4,24 @@ import { DB } from "./types";
 
 const file = path.join(process.cwd(), "data", "db.json");
 
-const empty: DB = { users: [], follows: [], posts: [] };
+const empty: DB = { users: [], follows: [], posts: [], likes: [] };
 
 export function readDB(): DB {
   try {
     if (!fs.existsSync(file)) {
       fs.mkdirSync(path.dirname(file), { recursive: true });
       fs.writeFileSync(file, JSON.stringify(empty, null, 2));
-      return { ...empty };
+      return { users: [], follows: [], posts: [], likes: [] };
     }
-    return JSON.parse(fs.readFileSync(file, "utf8")) as DB;
+    const data = JSON.parse(fs.readFileSync(file, "utf8")) as Partial<DB>;
+    return {
+      users: data.users || [],
+      follows: data.follows || [],
+      posts: data.posts || [],
+      likes: data.likes || [],
+    };
   } catch {
-    return { ...empty };
+    return { users: [], follows: [], posts: [], likes: [] };
   }
 }
 
