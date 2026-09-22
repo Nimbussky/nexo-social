@@ -19,6 +19,9 @@ Open http://localhost:3000
 4. Share text, images, or videos  
 5. Like posts · use Feed & Explore  
 
+**Demo login (always available):**  
+`demo@nexo.app` / `password123`
+
 ## Features
 
 - Sign up / log in / log out (secure httpOnly cookies)
@@ -43,7 +46,9 @@ Next.js 14 · TypeScript · Tailwind · file DB (`data/db.json`) · local upload
 4. Deploy  
 
 **Note:** On Vercel the file DB and uploads are ephemeral (serverless filesystem).  
-Use local for full persistence. Production upgrade path: Prisma + Neon Postgres + Vercel Blob.
+A demo user is always seeded so login works immediately.  
+New signups work for the current instance but do not persist across cold starts.  
+For real multi-user production: swap to Prisma + Neon Postgres + Vercel Blob.
 
 ## Repo
 

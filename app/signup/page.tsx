@@ -7,19 +7,31 @@ import Link from "next/link";
 export default function SignupPage() {
   const [form, setForm] = useState({ email: "", username: "", displayName: "", password: "" });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    const res = await fetch("/api/auth/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
-    const data = await res.json();
-    if (!res.ok) return setError(data.error);
-    router.push("/feed");
-    router.refresh();
+    setError("");
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Signup failed");
+        setLoading(false);
+        return;
+      }
+      router.push("/feed");
+      router.refresh();
+    } catch {
+      setError("Network error. Try again.");
+      setLoading(false);
+    }
   }
 
   return (
@@ -34,10 +46,17 @@ export default function SignupPage() {
             className="w-full rounded-xl border border-line bg-surface px-4 py-3 outline-none"
             value={(form as any)[key]}
             onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+            disabled={loading}
           />
         ))}
         {error && <p className="text-sm text-red-400">{error}</p>}
-        <button className="w-full rounded-full bg-accent py-3 font-medium">Create account</button>
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full rounded-full bg-accent py-3 font-medium disabled:opacity-60"
+        >
+          {loading ? "Creating…" : "Create account"}
+        </button>
       </form>
       <p className="mt-4 text-sm text-mute">
         Already have an account? <Link href="/login" className="text-white">Log in</Link>
